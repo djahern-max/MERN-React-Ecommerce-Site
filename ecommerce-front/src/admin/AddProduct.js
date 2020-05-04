@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom';
 import { createProduct } from './apiAdmin';
 
 const AddProduct = () => {
-  const { user, token } = isAuthenticated();
   const [values, setValues] = useState({
     name: '',
     description: '',
@@ -21,6 +20,8 @@ const AddProduct = () => {
     redirectToProfile: false,
     formData: '',
   });
+
+  const { user, token } = isAuthenticated();
   const {
     name,
     description,
@@ -46,10 +47,30 @@ const AddProduct = () => {
     setValues({ ...values, [name]: value });
   };
 
-  const clickSubmit = (event) => {};
+  const clickSubmit = (event) => {
+    event.preventDefault();
+    setValues({ ...values, error: '', loading: true });
+
+    createProduct(user._id, token, formData).then((data) => {
+      if (data.error) {
+        setValues({ ...values, error: data.error });
+      } else {
+        setValues({
+          ...values,
+          name: '',
+          description: '',
+          photo: '',
+          price: '',
+          quantity: '',
+          loading: false,
+          createdProduct: data.name,
+        });
+      }
+    });
+  };
 
   const newPostForm = () => (
-    <form action='' className='mb-3' onSubmit={clickSubmit}>
+    <form className='mb-3' onSubmit={clickSubmit}>
       <h4>Post Photo</h4>
       <div className='form-group'>
         <label className='btn btn-secondary'>
@@ -95,6 +116,7 @@ const AddProduct = () => {
         <label className='text-muted'>Category</label>
         <select onChange={handleChange('category')} className='form-control'>
           <option value='5eade993c5f8a23a0c25fb69'>Python</option>
+          <option value='5eade993c5f8a23a0c25fb69'>PHP</option>
         </select>
       </div>
 
