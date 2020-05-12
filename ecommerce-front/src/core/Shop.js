@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Layout from './Layout';
 import Card from './Card';
-import { getCategories } from './apiCore';
+import { getCategories, getFilteredProducts } from './apiCore';
 import Checkbox from './Checkbox';
 import RadioBox from './RadioBox';
 import { prices } from './fixedPrices';
@@ -13,6 +13,9 @@ const Shop = () => {
 
   const [categories, setCategories] = useState([]);
   const [error, setError] = useState(false);
+  const [limit, setLimit] = useState(6);
+  const [skip, setSkip] = useState(0);
+  const [filteredResults, setFilteredResults] = useState(0);
 
   const init = () => {
     getCategories().then((data) => {
@@ -24,12 +27,24 @@ const Shop = () => {
     });
   };
 
+  const loadFilteredResults = (newFilters) => {
+    // console.log(newFilters);
+    getFilteredProducts(skip, limit, newFilters).then((data) => {
+      if (data.error) {
+        setError(data.error);
+      } else {
+        setFilteredResults(data);
+      }
+    });
+  };
+
   useEffect(() => {
     init();
+    loadFilteredResults(skip, limit, myFilters.filters);
   }, []);
 
   const handleFilters = (filters, filterBy) => {
-    // console.log('SHOP', filters, filterBy);
+    console.log('SHOP', filters, filterBy);
     const newFilters = { ...myFilters };
     newFilters.filters[filterBy] = filters;
 
@@ -38,6 +53,9 @@ const Shop = () => {
       setMyFilters(newFilters);
       newFilters.filters[filterBy] = priceValues;
     }
+
+    loadFilteredResults(myFilters.filters);
+    setMyFilters(newFilters);
   };
 
   const handlePrice = (value) => {
@@ -56,12 +74,12 @@ const Shop = () => {
   return (
     <Layout
       title='Shop Page'
-      description='Node React E-commerce App'
+      description='Search and find books of your choice'
       className='container-fluid'
     >
       <div className='row'>
         <div className='col-4'>
-          <h4>Filter by Categories</h4>
+          <h4>Filter by categories</h4>
           <ul>
             <Checkbox
               categories={categories}
@@ -78,7 +96,7 @@ const Shop = () => {
           </div>
         </div>
 
-        <div className='col'>{JSON.stringify(myFilters)}</div>
+        <div className='col'>{JSON.stringify(filteredResults)}</div>
       </div>
     </Layout>
   );
