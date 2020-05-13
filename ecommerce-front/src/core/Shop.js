@@ -41,6 +41,31 @@ const Shop = () => {
     });
   };
 
+  const loadMore = () => {
+    let toSkip = skip + limit;
+    // console.log(newFilters);
+    getFilteredProducts(toSkip, limit, myFilters.filters).then((data) => {
+      if (data.error) {
+        setError(data.error);
+      } else {
+        setFilteredResults([...filteredResults, ...data.data]);
+        setSize(data.size);
+        setSkip(toSkip);
+      }
+    });
+  };
+
+  const loadMoreButton = () => {
+    return (
+      size > 0 &&
+      size >= limit && (
+        <button onClick={loadMore} className='btn btn-warning mb-5'>
+          Load more
+        </button>
+      )
+    );
+  };
+
   useEffect(() => {
     init();
     loadFilteredResults(skip, limit, myFilters.filters);
@@ -51,12 +76,10 @@ const Shop = () => {
     const newFilters = { ...myFilters };
     newFilters.filters[filterBy] = filters;
 
-    if (filterBy == 'price') {
+    if (filterBy === 'price') {
       let priceValues = handlePrice(filters);
-      setMyFilters(newFilters);
       newFilters.filters[filterBy] = priceValues;
     }
-
     loadFilteredResults(myFilters.filters);
     setMyFilters(newFilters);
   };
@@ -70,7 +93,6 @@ const Shop = () => {
         array = data[key].array;
       }
     }
-
     return array;
   };
 
@@ -100,7 +122,6 @@ const Shop = () => {
         </div>
 
         {/* <div className='col'>{JSON.stringify(filteredResults)}</div> */}
-
         <div className='col-8'>
           <h2 className='mb-4'>Products</h2>
           <div className='row'>
@@ -108,6 +129,8 @@ const Shop = () => {
               <Card key={i} product={product} />
             ))}
           </div>
+          <hr />
+          {loadMoreButton()}
         </div>
       </div>
     </Layout>
