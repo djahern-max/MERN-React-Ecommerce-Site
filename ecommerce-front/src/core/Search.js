@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getCategories } from './apiCore';
+import { getCategories, list } from './apiCore';
 import Card from './Card';
 
 const Search = () => {
@@ -28,7 +28,16 @@ const Search = () => {
   }, []);
 
   const searchData = () => {
-    console.log(search, category);
+    // console.log(search, category);
+    if (search) {
+      list({ search: search || undefined, category }).then((response) => {
+        if (response.error) {
+          console.log(response.error);
+        } else {
+          setData({ ...data, results: response, searched: true });
+        }
+      });
+    }
   };
 
   const searchSubmit = (e) => {
@@ -70,7 +79,10 @@ const Search = () => {
 
   return (
     <div className='row'>
-      <div className='container mb-3'>{searchForm()}</div>
+      <div className='container mb-3'>
+        {searchForm()}
+        {JSON.stringify(results)}
+      </div>
     </div>
   );
 };
