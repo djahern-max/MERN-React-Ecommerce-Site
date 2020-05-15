@@ -58,6 +58,7 @@ const Search = () => {
       </div>
     );
   };
+
   const searchForm = () => (
     <form onSubmit={searchSubmit}>
       <span className='input-group-text'>
