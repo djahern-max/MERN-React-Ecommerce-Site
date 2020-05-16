@@ -12,21 +12,22 @@
 
 .cart-badge,
 .cart-badge:hover {
-  border-radius: 50%;
+  border-radius: 20%;
   padding: 2px;
   font-size: 12px;
   font-style: italic;
-  background: #000;
+  background: red;
 }
 /**
   * single product page - product name
   */
 
 .name {
+  /* background-color: darkred; */
   background-color: #343a40;
   /* background-color: #0285b9; */
   color: white;
-  /* opacity: 0.9; */
+  opacity: 0.8;
   font-weight: bold;
 }
 
@@ -78,10 +79,10 @@
   /* background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab); */
   /* background: #a39d9d; */
 
-  background-color: #646f75;
+  background-color: #b3b3b3;
 
   color: #fff;
-  opacity: 0.7;
+  /* opacity: 0.8; */
   border-bottom: solid 1px #080303;
   background-size: 400% 400%;
   -webkit-animation: Gradient 15s ease infinite;

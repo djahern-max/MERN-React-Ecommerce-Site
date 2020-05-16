@@ -2,8 +2,14 @@ import React, { useState } from 'react';
 import { Link, Redirect } from 'react-router-dom';
 import ShowImage from './ShowImage';
 import moment from 'moment';
+import { addItem } from './cartHelpers';
 
-const Card = ({ product, showViewProductButton = true }) => {
+const Card = ({
+  product,
+  showViewProductButton = true,
+  showAddToCartButton = true,
+}) => {
+  const [redirect, setRedirect] = useState(false);
   const showViewButton = (showViewProductButton) => {
     return (
       showViewProductButton && (
@@ -16,11 +22,28 @@ const Card = ({ product, showViewProductButton = true }) => {
     );
   };
 
-  const showAddToCartButton = () => {
+  const addToCart = () => {
+    addItem(product, () => {
+      setRedirect(true);
+    });
+  };
+
+  const shouldRedirect = (redirect) => {
+    if (redirect) {
+      return <Redirect to='/cart' />;
+    }
+  };
+
+  const showAddToCart = (showAddToCartButton) => {
     return (
-      <button className=' btn btn-outline-warning mt-2 mb-2 card-btn-1'>
-        Add to Cart
-      </button>
+      showAddToCartButton && (
+        <button
+          onClick={addToCart}
+          className=' btn btn-outline-warning mt-2 mb-2 card-btn-1'
+        >
+          Add to Cart
+        </button>
+      )
     );
   };
 
@@ -36,9 +59,10 @@ const Card = ({ product, showViewProductButton = true }) => {
     <div className='card'>
       <div className='card-header name'>{product.name}</div>
       <div className='card-body'>
+        {shouldRedirect(redirect)}
         <ShowImage item={product} url='product' />
         <p className='lead mt-2'>{product.description.substring(0, 100)}</p>
-        <p className=''>${product.price}</p>
+        <p className='black-10'>${product.price}</p>
         <p className='black-9'>
           Category: {product.category && product.category.name}
         </p>
@@ -52,7 +76,7 @@ const Card = ({ product, showViewProductButton = true }) => {
 
         {showViewButton(showViewProductButton)}
 
-        {showAddToCartButton()}
+        {showAddToCart(showAddToCartButton)}
       </div>
     </div>
   );
