@@ -10,6 +10,8 @@ const Card = ({
   showAddToCartButton = true,
   cartUpdate = false,
   showRemoveProductButton = false,
+  setRun = (f) => f,
+  run = undefined,
 }) => {
   const [redirect, setRedirect] = useState(false);
   const [count, setCount] = useState(product.count);
@@ -51,25 +53,20 @@ const Card = ({
     );
   };
 
-  const showRemoveButton = (showRemoveProductButton) => {
-    return (
-      showRemoveProductButton && (
-        <button
-          onClick={() => removeItem(product._id)}
-          className=' btn btn-outline-danger mt-2 mb-2 card-btn-1'
-        >
-          Remove Product
-        </button>
-      )
-    );
-  };
-
   const showStock = (quantity) => {
     return quantity > 0 ? (
       <span className='badge badge-success badge-pill'>In Stock</span>
     ) : (
       <span className='badge badge-danger badge-pill'>Out of Stock</span>
     );
+  };
+
+  const handleChange = (productId) => (event) => {
+    setRun(!run); // run useEffect in parent Cart
+    setCount(event.target.value < 1 ? 1 : event.target.value);
+    if (event.target.value >= 1) {
+      updateItem(productId, event.target.value);
+    }
   };
 
   const showCartUpdateOptions = (cartUpdate) => {
@@ -92,11 +89,20 @@ const Card = ({
     );
   };
 
-  const handleChange = (productId) => (event) => {
-    setCount(event.target.value < 1 ? 1 : event.target.value);
-    if (event.target.value >= 1) {
-      updateItem(productId, event.target.value);
-    }
+  const showRemoveButton = (showRemoveProductButton) => {
+    return (
+      showRemoveProductButton && (
+        <button
+          onClick={() => {
+            removeItem(product._id);
+            setRun(!run); // run useEffect in parent Cart
+          }}
+          className='btn btn-outline-danger mt-2 mb-2'
+        >
+          Remove Product
+        </button>
+      )
+    );
   };
 
   return (
