@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import Layout from './Layout';
-import { getProducts, getBraintreeClientToken } from './apiCore';
+import {
+  getProducts,
+  getBraintreeClientToken,
+  processPayment,
+} from './apiCore';
+import { emptyCart } from './cartHelpers';
 import Card from './Card';
 import { isAuthenticated } from '../auth';
 import { Link } from 'react-router-dom';
@@ -58,7 +63,7 @@ const Checkout = ({ products }) => {
     let getNonce = data.instance
       .requestPaymentMethod()
       .then((data) => {
-        console.log(data);
+        // console.log(data);
         nonce = data.nonce;
         // once you have nonce (card type, card number) send nonce as 'paymentMethodNonce'
         // and also total to be charged
@@ -67,15 +72,28 @@ const Checkout = ({ products }) => {
         //     nonce,
         //     getTotal(products)
         // );
-        console.log(
-          'send nonce and total to process: ',
-          nonce,
-          getTotal(products)
-        );
+        const paymentData = {
+          paymentMethodNonce: nonce,
+          amount: getTotal(products),
+        };
+
+        processPayment(userId, token, paymentData)
+          .then((response) => {
+            // console.log(response)
+            setData({ ...data, success: response.success });
+            emptyCart(() => {
+              console.log('payment success and empty cart');
+              setData({ loading: false });
+            });
+            // empty cart
+            // create order
+          })
+
+          .catch((error) => console.log(error));
       })
       .catch((error) => {
-        console.log('dropin error:', error);
-        setData({ ...data, error: error.message });
+        console.log(error);
+        setData({ loading: false });
       });
   };
 
@@ -86,11 +104,14 @@ const Checkout = ({ products }) => {
           <DropIn
             options={{
               authorization: data.clientToken,
+              paypal: {
+                flow: 'vault',
+              },
             }}
             onInstance={(instance) => (data.instance = instance)}
           />
-          <button onClick={buy} className='btn btn-success'>
-            Submit Payment
+          <button onClick={buy} className='btn btn-success btn-block'>
+            Pay
           </button>
         </div>
       ) : null}
@@ -106,9 +127,22 @@ const Checkout = ({ products }) => {
     </div>
   );
 
+  const showSuccess = (success) => (
+    <div
+      className='alert alert-info'
+      style={{ display: success ? '' : 'none' }}
+    >
+      Thanks! Your payment was successful!
+    </div>
+  );
+
+  const showLoading = (loading) => loading && <h2>Loading...</h2>;
+
   return (
     <div>
       <h4>Total: ${getTotal()}</h4>
+      {showLoading(data.loading)}
+      {showSuccess(data.success)}
       {showError(data.error)}
       {showCheckout()}
     </div>
