@@ -65,8 +65,14 @@ const Orders = () => {
   //   });
   // };
 
-  const handleStatusChange = () => {
-    console.log('update order status');
+  const handleStatusChange = (e, orderId) => {
+    updateOrderStatus(user._id, token, orderId, e.target.value).then((data) => {
+      if (data.error) {
+        console.log('Status update failed');
+      } else {
+        loadOrders();
+      }
+    });
   };
 
   const showStatus = (o) => (
